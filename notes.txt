@@ -1,0 +1,22 @@
+WHAT IS NODE.JS?
+it allows you to build a scalable network app using javascript on the server side.
+
+Node can basically be a wrapper to the V8 javascript Runtime and engine like my chrome browser.
+Node provides additonal functionalities for network apps.
+Node and the Runtime is mostly written in C code which  makes it fast
+
+WHAT CAN I BUILD?
+-I can build a chat server(Websocket server)
+-Fast File Upload client
+-ad server
+-real-time data apps
+
+It's a single threaded server for network communication
+
+BLOCKING CODE VS NON-BLOCKING CODE
+- a nonblocking code would do something and "call back" that function
+Without a callback function it's a blocking code
+Blocking code files read one after the other where the nonblocking read parallel and work faster that way
+
+
+Javascript allows us to do evented programming easily using event loops that are nonblocking
