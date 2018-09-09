@@ -20,3 +20,25 @@ Blocking code files read one after the other where the nonblocking read parallel
 
 
 Javascript allows us to do evented programming easily using event loops that are nonblocking
+
+EVENTS IN THE DOM
+
+Many objects in Node emit events inherited from the Event Emmitter constructor.
+net.Server class emits the request event
+reading a file returns a stream inherited from the event emitter as a data event
+
+The example from codeschool video below shows a custom EventEmitter for error events.  It can also be done with Warn and Info events:
+var EventEmitter = require('events').EventEmitter;
+var logger = new EventEmitter();
+logger.on('error', function(message){
+console.log('ERR: ' + message);
+});
+logger.emit('error', 'Spilled Milk);
+logger.emit('error', 'Eggs Cracked');
+
+Another example on how to add event listeners in node is:
+var server = http.createServer();
+server.on('request', function(request, response){...});
+
+to listen to close event:
+server.on('close', function ......etc.
