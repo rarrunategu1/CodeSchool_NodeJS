@@ -42,3 +42,89 @@ server.on('request', function(request, response){...});
 
 to listen to close event:
 server.on('close', function ......etc.
+
+STREAMS
+    for Node version 0.10 aka streams2
+    There are Readable and Writeable streams
+
+server.on('request', function(request, response){...});
+
+The request is a readable stream and the response is a writable stream
+
+HOW DO WE READ FROM A REQUEST?
+
+Request object is a readable stream and inherits from eventemitter
+
+example from nodeschool video below:
+http.createServer(function(request, response){
+response.writeHead(200);
+request.on('readable', function() {
+var chunk = null;
+while(null !== (chunk = request.read())) { //we're reading out a chunk from the request.  If it's not null we'll print it to the console.
+console.log(chunk.toString()); //toString is there to deal with possible binary data
+} //replace the console.log with response.write(chunk); in order to echo back to the client the data we get in the rquest.  Note that this handles the toString function in the background too.
+});
+request.on('end', function() {
+response.end();  //this function finishes the response.
+});
+
+}).listen(8080)
+
+a large portion of the code can be replaced with the rquest.pipe
+
+http.createServer(function(request, response){
+response.writeHead(200);
+request.pipe(response);
+}).listen(8080)
+
+writing in the terminal,  curl -d 'hello' http://localhost:8080
+will send the string back
+
+To see which API is stable or not http://nodesjs.org/api/
+Note that the stability of the Streams module is still unstable and it's best to check whenever an update comes up because changes to the API are still possible
+
+READ CONTENTS OF ONE FILE AND STREAM TO ANOTHER FILE 
+example from nodeschool video
+var fs = require('fs'); //require file system module
+var file = fs.createReadStream("readme.md"); //create read stream from original file
+var newFile = fs.createWriteStream("readme_copy.md"); //create write stream to destination file
+file.pipe(newFile);
+
+
+PIPE A READ STREAM INTO A WRITE STREAM
+READ FROM A REQUEST AND PIPE TO A FILE
+var fs = require('fs'); 
+var http = require('http');
+
+http.createServer(function(request, response){
+var newFile = fs.createWriteStream("readme_copy.md");
+request.pipe(newFile);
+
+request.on('end', function() {
+response.end('uploaded');
+});
+
+}).listen(8080);
+
+to call it on the terminal curl --upload-file readme.md http://localhost:8080
+
+FILE UPLOAD PROGRESS
+
+http.createServer(function(request, response){
+var newFile = fs.createWriteStream("readme_copy.md");
+var fileBytes = request.headers['content-length'];  //gives us the size of the file
+var uploadedBytes = 0;  //keeps track of how many bytes uploaded
+request.on('readable', function() {
+var chunck = null;
+while(null !== (chunck = request.read())){
+uploadedBytes += chunk.length;  //we'll increment the bites with the length of each chunk
+var progress = (uploadedBytes /fileBytes) *100;
+response.write("progress: " + parseInt(progess, 10) + "%\n");
+}
+});
+request.pipe(newFile);
+...
+}).listen(8080);
+
+run the code node app.js and upload the file curl --upload-file large_file.jpg http://localhost:8080 to see the progress
+
