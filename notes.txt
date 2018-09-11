@@ -290,3 +290,74 @@ SEMANTIC VERSIONING
 semver.org is good for more info
 
 
+EXPRESS
+a sinatra inspired web dev framework for node.js which is fast, flexible and simple
+ - easy route URLs for callbacks
+ - MiddleWare
+ -env based config
+ -redirection helpers
+ -file uploads
+ 
+To build the express app, require the library
+var express  require('express');
+install it if it's not installed:
+npm install --save express
+
+then create an instance of express
+var app = express();
+
+now define endpoints
+app.get('/', function(request, response) {
+response.sendFile(__dirname + "/index.html");
+});
+app.listen(8080);
+
+call it up
+curl http://localhost: 8080/
+returns 200 OK and will load the index.html
+
+CREATE ENDPOINT TO SEND IN A TWITTER USER NAME -call out to twitter for latest 10 tweets and display them
+var request = 'require('request'); //request module
+var url = require('url'); //url module
+app.get('/tweets/:username', function(req, response){
+    var username = req.params.username;  //will store the user name 
+    options = {
+    protocol: "http:",
+    host: 'api.twitter.com',
+    pathname: '/1/statuses/user_timeline.json',
+    query: {screen_name: username, count: 10}
+}
+var twitterUrl = url.format(options); //call our request with our URL
+request(twitterUrl).pipe(response); /pipe the response back into the user's browser
+    
+run the node.
+
+call it
+curl -s http://localhost:8080/tweets/eallam | prettyjson for a pretty response.
+Make sure to npm install prettyjson -g if you don't have it.
+
+HOW DO WE GRAB THAT INFO THAT WE GOT FROM TWITTER AND PUT IT INTO A TEMPLATE FOR OUR WEB BROWSER
+
+First install a templating library
+npm install --save ejs
+
+app.get('/tweets/:username', function(req, response){
+...
+request(url, function(err, res, body) { //we want to get access to err, response and body
+var tweets = JSON.parse(body); //parse the json we get back in response body
+response.locals = {tweets: tweets, name: username}; //this will define what data will go into our template so we can get them.
+response.render('tweets.ejs'); //tells our response to render out tweets.ejs.  EJS stands for embedded javascript
+
+});
+});
+
+In the tweets.ejs file
+<h1> Tweets for @<%= name %></h1> //gives the name
+<ul>
+<% tweets.forEach(function(tweet){ %>  //gives the tweets
+<li><%= tweet.text %</li>
+<%}); %>
+</ul>
+
+<%= is if we want the value to get returned from the expression we put in there to get printed out to page
+<% is to just run some code...ex iterate through an array
