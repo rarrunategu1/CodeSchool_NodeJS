@@ -370,3 +370,20 @@ build a chat app
 npm install --save socket.io
 
 see rest of notes on node.js and index.html
+
+
+
+PERSISTING DATA
+
+How do we get new people who join our chat app to see the previous messages that were there before they joined.
+
+What if my the last ten messages aren't there any more when a browser is reloaded
+
+REDIS DATA STRUCTURES
+
+node redis is on github - search it.
+to install do npm install redis --save
+
+Inside the code require redit and create a client
+
+How do we show a list of who's currently in the chat room - use a set.  Sets are lists of unique data

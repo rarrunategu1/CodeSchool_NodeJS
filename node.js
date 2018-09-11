@@ -29,19 +29,45 @@ var express = require('express'); //require exp module
 var app = express(); //initialize express application.
 var server = require('http').createServer(app); //create http server and have dispatch request to express
 var io = require('socket.io')(server); //require socket io module and allow it use the http server to listen for requests
+var message = []; //store messages in array
+var redisClient = redis.createClient();
 
-io.on('connection', function(client){ //listen to connection events in io
-    console.log('Client connected...');
-    client.emit('messages', {hello: 'world'});  //emits the messages event in our browser and sends the object hello world
-    client.on('messages', function (data) {  //listens for messages
-        var nickname = client.nickname;
-        client.broadcast.emit("message", nickname + ": " + message); //will show what the user typed plus their username
-        client.emit("message", nickname + ": " + message); //will show us what we typed back in the browser
-        client.broadcast.emit("messages", data); //emits the message to everyone with broadcast
-        console.log(data);
-    client.on('join', function(name){ 
-      client.nickname = name;  
-    });
+var storeMessage = function(name, data){
+    var message = JSON.stringify({name: name, data: data}); //stringify turns the object into a string to store in reddit
+    redisClient.lpush("messages", message, function(err, response) {
+        redisClient.ltrim("messages", 0, 9) //which will always keep the newest 10 message there.
+    })
+   
+    }
+    io.sockets.on('connection', function(client){ //listen to connection events in io
+    client.on('messages', function (message){
+        client.get("nickname", function(error, name) {
+           client.broadcast.emit("messages", name + ": " + message); //emits the message to everyone with broadcast
+         client.emit("message", name + ": " + message); //will show us what we typed back in the browser
+        storeMessage(name, message);
+        client.on('join', function(name){
+            client.broadcast.emit("add chatter", name); //notifies other clients who joined
+            redisClient.smemember('names', function(err, names) {
+               names.forEach(function(name){
+                   client.emit('add chatter', name);
+               });
+            });
+                rediClient.sadd("chatters", name);
+            redisClient.lrange("messages", 0, -1, function(err, message){
+                messages = messages.reverse(); //reversed so that they're emitted in the correct order
+            })
+         messages.forEac(function(message){
+             message = JSON.parse(message); //parse into JSON object
+             client.emit("messages", message.name + ": " + message.data);
+         })   //iterate through messages array and emits a message on the connecting cient for each one
+            client.on('disconnect', function (name){
+                client.get('nickname', function(err, name){
+                    clientbroadcast.emit("remove chatter", name);
+                    redisClient.srem("chatters", name);
+                });
+            });
+    
+
 
         
     });
