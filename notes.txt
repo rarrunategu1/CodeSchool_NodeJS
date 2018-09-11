@@ -361,3 +361,12 @@ In the tweets.ejs file
 
 <%= is if we want the value to get returned from the expression we put in there to get printed out to page
 <% is to just run some code...ex iterate through an array
+
+
+SOCKET.IO
+
+build a chat app
+
+npm install --save socket.io
+
+see rest of notes on node.js and index.html

@@ -1,0 +1,20 @@
+<script src = "/socket.io/socket.io.js"> //socket io library</script> 
+<script>
+    var socket = io.connect('http://localhost:8080'); //this connects to our socket io server
+    socket.on('messages', function(data) { //we'll listen to the messages event
+    alert(data.hello); //when it receives it we'll do an alert with the data it receives in hello which is world
+    });
+    $('#chat_form').submit(function(e){ //when someone hits submit
+      var message = $('#chat_input').val(); //will grab the value of the message and store it.  
+    //emit the messages event on the server below
+    socket.emit('messages', message);
+        
+    });
+    
+    socket.on('messages', function(data){ insertMessage(data)}); //will insert the message sent onto the screeen
+    server.on('connect', function(data) {
+    $('#status').html('Connected to chattr');
+    nickname = prompt("What is your nickname?");
+    server.emit('join', nickname); //notifies server of the user's nickname
+    });
+    </script>
