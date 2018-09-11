@@ -128,3 +128,165 @@ request.pipe(newFile);
 
 run the code node app.js and upload the file curl --upload-file large_file.jpg http://localhost:8080 to see the progress
 
+
+MODULES
+
+Examples of modules are the http libraries (http.js) and the fs or file system (fs.js)libraries
+
+How does 'require' return libraries and how does it find files?
+
+CREATING A MODULE
+Notes taken from nodeschool modules video
+
+custom_hello.js file below
+
+var hello = function() {
+console.log("hello!");
+}
+
+module.exports = hello;  //this makes it a public method
+
+app.js file below add
+
+var hello = require('./custom_hello');
+var gb = require('./custom_goodbye');
+hello();
+gb.goodbye();
+
+example of a goodbye module below that then is required in the app.js above
+
+custom_goodbye.js
+
+exports.goodbye = function() { //this allows us to set multiple methods as public.
+console.log("bye!");
+}
+
+to call the goodbye method in one line:
+require('./custom_goodbye').goodbye();
+
+CREATE A MODULE WITH 3 FUNCTIONS
+notes from nodeschool modules
+
+my_module.js
+var foo = function() {...}
+var bar = function() {...}
+var baz = function() {...}
+
+exports.foo = foo
+exports.bar = bar
+
+app.js
+var myMod = require('./my_module');
+myMod.foo();  //in this way only two of the methods are accessible outside of the module.  Baz is private and only avail within module
+myMod.bar();
+
+Make a code to make an http request and then refactor into a module:
+
+var http = require('http');
+var message = "Here's the message";
+var options = {
+host:'localhost', port: 8080, path: '/', method: 'POST'}
+
+var request = http.request(options, function(response) {
+response.on('data', function(data){
+console.log(data); //logs response body
+});
+});
+request.write(message); //begins the request above
+request.end(); //finishes request
+
+ENCAPSULATING THE FUNCTION ABOVE BELOW:
+var http = require('http');
+var makeRequest = function(message) {
+var options = {
+host:'localhost', port: 8080, path: '/', method: 'POST'}
+
+var request = http.request(options, function(response) {
+response.on('data', function(data){
+console.log(data); //logs response body
+});
+});
+request.write(message); //begins the request above
+request.end(); //finishes request
+}
+makeRequest('Here's the message');
+
+Now encapsulat it inside a module called make_request.js:
+var http = require('http');
+var makeRequest = function(message) {
+...
+}
+module.exports = makeRequest;
+
+then in the app require the moduel and 
+var makeRequest = require('./make_request');
+makeRequest("here's the message");
+
+
+HOW DOES REQUIRE LOOK FOR MODULES?
+
+var makeRequest = require('./make_request');
+//the ./ looks for a file in the same directory with that name
+../ would look "up" a directory and you can find it through file like /Users/eric/nodes/make_request
+if you look for a file with just make_request, it will search in the node_modules directories inside our current app
+if it can't find it there, it will look for it going up one directory at a time looking up the module
+
+Usually inside a node modules folder you'll find directories which are packages that represent Modules
+NPM is where you find packages and modules for node
+comes with node
+has a big module repository
+good dependency management built in
+easily publish your own modules
+npmjs.org to check out
+
+to install 
+npm install request
+
+it will install into the local node_modules directory inside of a directory called request
+
+to require that specific directory in an app.js file:
+var request = require('request');
+
+INSTALLING A MODULE GLOBALLY
+
+npm install coffe-script -g
+
+coffee script comes with an executable so that you can run a file like so:
+
+coffee app.coffee will translate the file into javascript
+
+Global npm modules can be required form inside application like the code below:
+var coffee = requre('coffee-script');
+
+you would have to install it locally:
+npm install coffee-script
+
+and then require it:
+var coffee = requre('coffee-script');
+
+*Check the NPM registry to search for existing shared libraries
+ - also check github
+
+When creating a node project, create a package.json file:
+my_app/package.json
+
+There you can specify the name, the version and the dependencies (the modules that the app needs to run) of the app
+{
+"dependencies": {
+"connect": "1.8.7" // connect is the module, 187 is the version numer
+
+}
+
+to check if they're all installed run
+npm install whill see if there are any modules we don't have and then install them if there were any
+
+when you working with someone elses code, run npm install so that it will fetch the dependencies and create the node modules directory
+
+SEMANTIC VERSIONING
+"connect": "1.8.7" //makes sure that your fetching the most recent technology  in the safest way
+1 is major which will change the api or names of function
+8 is minor may change the api or names of functions
+7 is patch which doesn't change the api or names of the functions you may call
+semver.org is good for more info
+
+
